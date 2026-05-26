@@ -1,0 +1,61 @@
+@import "tailwindcss";
+
+:root {
+  --background: #070b14;
+  --surface: #111827;
+  --card: rgba(255, 255, 255, 0.04);
+
+  --primary: #7c3aed;
+  --primary-light: #8b5cf6;
+
+  --accent: #00e5ff;
+
+  --text: #f9fafb;
+  --muted: #94a3b8;
+
+  --border: rgba(255, 255, 255, 0.08);
+
+  --radius: 24px;
+
+  --shadow-glow: 0 0 40px rgba(124, 58, 237, 0.35);
+  --shadow-card: 0 10px 30px rgba(0, 0, 0, 0.3);
+
+  --backdrop: blur(24px);
+}
+
+html,
+body {
+  background: var(--background);
+  color: var(--text);
+  font-family: Inter, sans-serif;
+}
+
+body {
+  overflow-x: hidden;
+}
+
+* {
+  border-color: var(--border);
+}
+
+.glass {
+  background: var(--card);
+  border: 1px solid var(--border);
+  backdrop-filter: var(--backdrop);
+  -webkit-backdrop-filter: var(--backdrop);
+  box-shadow: var(--shadow-card);
+}
+
+.gradient-text {
+  background: linear-gradient(
+    90deg,
+    var(--primary),
+    var(--accent)
+  );
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.glow {
+  box-shadow: var(--shadow-glow);
+}
