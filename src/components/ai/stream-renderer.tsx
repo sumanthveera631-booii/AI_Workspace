@@ -11,17 +11,21 @@ export default function StreamRenderer({
 
   useEffect(() => {
     let index = 0;
-    const interval = setInterval(() => {
+    let timer: number;
+
+    const tick = () => {
       setDisplayed(text.slice(0, index));
       index += 2; // Speed up streaming slightly for premium feel
 
-      if (index > text.length) {
+      if (index <= text.length) {
+        timer = window.setTimeout(tick, 30);
+      } else {
         setDisplayed(text);
-        clearInterval(interval);
       }
-    }, 15);
+    };
 
-    return () => clearInterval(interval);
+    timer = window.setTimeout(tick, 30);
+    return () => window.clearTimeout(timer);
   }, [text]);
 
   return (

@@ -38,16 +38,51 @@ export default function VoiceAssistant({ onTranscript }: VoiceAssistantProps) {
       };
 
       recognition.onresult = (event: any) => {
-        const text = event.results[0][0].transcript;
-        if (text) {
-          onTranscript(text);
+        const results = event?.results;
+        if (!results || results.length === 0) return;
+
+        let finalTranscript = "";
+        for (let i = results.length - 1; i >= 0; i--) {
+          const result = results[i];
+          if (result.isFinal) {
+            finalTranscript = result[0]?.transcript?.trim() || "";
+            break;
+          }
+        }
+
+        if (!finalTranscript) {
+          finalTranscript = results[results.length - 1]?.[0]?.transcript?.trim() || "";
+        }
+
+        if (finalTranscript) {
+          const words = finalTranscript.split(/\s+/);
+          const seen = new Set<string>();
+          const uniqueWords = words.filter((word) => {
+            if (seen.has(word.toLowerCase())) return false;
+            seen.add(word.toLowerCase());
+            return true;
+          });
+          onTranscript(uniqueWords.join(" "));
         }
       };
 
       recognition.onerror = (e: any) => {
-        console.error("Speech Recognition Error:", e);
+        const errorType = e?.error || "unknown";
+        const errorMessages: Record<string, string> = {
+          "no-speech": "No speech detected. Try again.",
+          "audio-capture": "Microphone not available. Check permissions.",
+          "not-allowed": "Microphone access denied. Enable in browser settings.",
+          network: "Network error. Check your connection.",
+          aborted: "Recognition was cancelled.",
+          "language-not-supported": "Language not supported.",
+          "service-not-allowed": "Speech service not allowed.",
+          unknown: "An error occurred. Please try again.",
+        };
+        const message = errorMessages[errorType] || errorMessages.unknown;
+        console.warn("Speech Recognition:", errorType, message);
         setError(true);
         setIsListening(false);
+        recognition.abort();
       };
 
       recognition.onend = () => {

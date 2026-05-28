@@ -16,7 +16,6 @@ export async function signUp(
     email,
     password,
     options: {
-      emailRedirectTo: `${origin}/auth/callback`,
       data: {
         name,
       },
@@ -24,19 +23,33 @@ export async function signUp(
   });
 
   if (error) {
-    return { error: error.message };
+    const message = error.message || "Unable to create account.";
+
+    if (message.toLowerCase().includes("rate limit")) {
+      return {
+        error: "Email rate limit exceeded. Please wait a few minutes before trying again.",
+      };
+    }
+
+    if (message.toLowerCase().includes("already registered")) {
+      return {
+        error: "This email is already registered. Please sign in or reset your password.",
+      };
+    }
+
+    return { error: message };
   }
 
   // Create profile
   if (data.user) {
     await supabase.from("profiles").insert({
       user_id: data.user.id,
-      email: email,
-      name: name,
+      email,
+      name,
     });
   }
 
-  return { success: true };
+  return { success: true, session: data.session || null, user: data.user || null };
 }
 
 export async function signIn(email: string, password: string) {

@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import WorkspaceLayout from "@/components/workspace/workspace-layout";
-import DashboardGrid from "@/components/dashboard/dashboard-grid";
+import { DynamicDashboard } from "@/lib/dynamic-imports";
 import DashboardAurora from "@/components/effects/dashboard-aurora";
 import { createWorkspace, getWorkspaces } from "@/lib/actions/workspace";
 import { toast } from "sonner";
@@ -119,6 +119,8 @@ export default function DashboardClient({
                   <img
                     src={user.image}
                     alt={user.name}
+                    loading="lazy"
+                    decoding="async"
                     className="h-10 w-10 rounded-full border border-white/20"
                   />
                 ) : (
@@ -189,7 +191,7 @@ export default function DashboardClient({
           )}
 
           {/* DASHBOARD GRID */}
-          <DashboardGrid
+          <DynamicDashboard
             initialTasks={initialTasks}
             initialDocuments={initialDocuments}
             initialActivities={initialActivities}

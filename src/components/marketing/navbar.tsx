@@ -44,20 +44,6 @@ export default function Navbar() {
             href="/login"
             className="
               rounded-2xl
-              px-5
-              py-2
-              text-white/70
-              transition
-              hover:text-white
-            "
-          >
-            Sign In
-          </Link>
-
-          <Link
-            href="/signup"
-            className="
-              rounded-2xl
               bg-white
               px-5
               py-2
@@ -66,7 +52,7 @@ export default function Navbar() {
               hover:scale-105
             "
           >
-            Get Started
+            Sign In
           </Link>
         </div>
       </div>

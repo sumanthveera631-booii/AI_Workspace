@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, Suspense } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { motion } from "framer-motion";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -16,10 +16,14 @@ function LoginForm() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [showSignUpPrompt, setShowSignUpPrompt] = useState(false);
+  const [session, setSession] = useState<any>(null);
+  const [signedOut, setSignedOut] = useState(false);
 
   async function handleLogin(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     setError("");
+    setShowSignUpPrompt(false);
 
     if (!email || !password) {
       setError("Email and password are required");
@@ -32,7 +36,16 @@ function LoginForm() {
       const result = await signIn(email, password);
 
       if (result.error) {
-        setError(result.error);
+        if (
+          result.error.toLowerCase().includes("invalid login credentials") ||
+          result.error.toLowerCase().includes("invalid credentials") ||
+          result.error.toLowerCase().includes("credentials")
+        ) {
+          setError("No account found with this email. Please create a new account.");
+          setShowSignUpPrompt(true);
+        } else {
+          setError(result.error);
+        }
         setLoading(false);
         return;
       }
@@ -46,24 +59,77 @@ function LoginForm() {
     }
   }
 
-  const handleGoogleSignIn = async () => {
+  useEffect(() => {
     const supabase = createClient();
-    await supabase.auth.signInWithOAuth({
-      provider: "google",
-      options: {
-        redirectTo: `${window.location.origin}/auth/callback`,
-      },
+
+    supabase.auth.getSession().then(({ data }) => {
+      setSession(data.session || null);
     });
+  }, [signedOut]);
+
+  const handleGoogleSignIn = async () => {
+    setError("");
+    const supabase = createClient();
+    await supabase.auth.signOut();
+    setSignedOut(true);
+
+    try {
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: "google",
+        options: {
+          redirectTo: `${window.location.origin}/auth/callback`,
+          queryParams: {
+            prompt: "select_account",
+            access_type: "offline",
+          },
+        },
+      });
+
+      if (error) {
+        if (error.message.toLowerCase().includes("not enabled") || error.message.toLowerCase().includes("unsupported")) {
+          setError(
+            "Google Sign-In isn't enabled yet. Your administrator needs to set it up. Try email sign-in instead."
+          );
+        } else {
+          setError(error.message || "Unable to sign in with Google. Please try again.");
+        }
+      }
+    } catch (err) {
+      console.error(err);
+      setError("Unable to sign in with Google. Please check your connection and try again.");
+    }
   };
 
   const handleGitHubSignIn = async () => {
+    setError("");
     const supabase = createClient();
-    await supabase.auth.signInWithOAuth({
-      provider: "github",
-      options: {
-        redirectTo: `${window.location.origin}/auth/callback`,
-      },
-    });
+    await supabase.auth.signOut();
+    setSignedOut(true);
+
+    try {
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: "github",
+        options: {
+          redirectTo: `${window.location.origin}/auth/callback`,
+          queryParams: {
+            allow_signup: "true",
+          },
+        },
+      });
+
+      if (error) {
+        if (error.message.toLowerCase().includes("not enabled") || error.message.toLowerCase().includes("unsupported")) {
+          setError(
+            "GitHub Sign-In isn't enabled yet. Your administrator needs to set it up. Try email sign-in instead."
+          );
+        } else {
+          setError(error.message || "Unable to sign in with GitHub. Please try again.");
+        }
+      }
+    } catch (err) {
+      console.error(err);
+      setError("Unable to sign in with GitHub. Please check your connection and try again.");
+    }
   };
 
   return (
@@ -109,7 +175,38 @@ function LoginForm() {
 
           {error && (
             <div className="rounded-xl border border-red-500/20 bg-red-500/10 px-4 py-3 text-sm text-red-400">
-              {error}
+              <div>{error}</div>
+              {showSignUpPrompt && (
+                <div className="mt-3">
+                  <Link
+                    href={`/signup?email=${encodeURIComponent(email)}&password=${encodeURIComponent(password)}`}
+                    className="inline-block rounded-xl bg-cyan-500 px-4 py-2 text-xs font-semibold text-black transition hover:bg-cyan-400 hover:scale-105"
+                  >
+                    Create Account Page →
+                  </Link>
+                </div>
+              )}
+            </div>
+          )}
+
+          {session?.user && (
+            <div className="rounded-xl border border-yellow-500/20 bg-yellow-500/10 px-4 py-3 text-sm text-yellow-100">
+              <p>
+                You are currently signed in as <strong>{session.user.email}</strong>.
+                To sign in with a different account, please log out first.
+              </p>
+              <button
+                type="button"
+                onClick={async () => {
+                  const supabase = createClient();
+                  await supabase.auth.signOut();
+                  setSession(null);
+                  setSignedOut(true);
+                }}
+                className="mt-3 inline-flex rounded-xl bg-white px-4 py-2 text-xs font-semibold text-black transition hover:bg-white/90"
+              >
+                Log out current session
+              </button>
             </div>
           )}
 

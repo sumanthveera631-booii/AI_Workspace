@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import { Activity, Clock, FileText, CheckCircle, MessageSquare, Terminal } from "lucide-react";
+import { useLowEndDevice } from "@/hooks/use-low-end-device";
 
 interface ActivityItem {
   id: string;
@@ -18,6 +19,7 @@ const initialActivities: ActivityItem[] = [
 ];
 
 export default function ActivityStream() {
+  const lowEnd = useLowEndDevice();
   const [items, setItems] = useState<ActivityItem[]>(initialActivities);
 
   useEffect(() => {
@@ -39,10 +41,10 @@ export default function ActivityStream() {
       };
 
       setItems((prev) => [newItem, ...prev.slice(0, 5)]);
-    }, 6000);
+    }, lowEnd ? 9000 : 6000);
 
     return () => clearInterval(interval);
-  }, []);
+  }, [lowEnd]);
 
   const getIcon = (type: string) => {
     switch (type) {

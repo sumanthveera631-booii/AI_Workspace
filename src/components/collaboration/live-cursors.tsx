@@ -49,6 +49,7 @@ export default function LiveCursors() {
 
     return () => {
       window.removeEventListener("mousemove", handleMouseMove);
+      channel.removeEventListener("message", handleMessage);
       channel.close();
     };
   }, [myId]);

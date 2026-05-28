@@ -153,3 +153,29 @@ export async function addWorkspaceMember(
   revalidatePath("/workspaces");
   return { success: true };
 }
+
+export async function getWorkspace(workspaceId: string) {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    return { workspace: null, error: "Unauthorized" };
+  }
+
+  const { data: workspace, error } = await supabase
+    .from("workspaces")
+    .select(`
+      *,
+      owner:profiles!workspaces_owner_id_fkey(name, email, avatar_url)
+    `)
+    .eq("id", workspaceId)
+    .single();
+
+  if (error) {
+    return { workspace: null, error: error.message };
+  }
+
+  return { workspace };
+}

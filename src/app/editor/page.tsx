@@ -1,6 +1,7 @@
-import WorkspaceLayout from "@/components/workspace/workspace-layout";
+"use client";
 
-import EditorShell from "@/components/editor/editor-shell";
+import WorkspaceLayout from "@/components/workspace/workspace-layout";
+import { DynamicEditor } from "@/lib/dynamic-imports";
 
 export default function EditorPage() {
   return (
@@ -49,7 +50,7 @@ export default function EditorPage() {
 
         {/* EDITOR */}
         <div className="p-4 md:p-8">
-          <EditorShell />
+          <DynamicEditor />
         </div>
       </div>
     </WorkspaceLayout>

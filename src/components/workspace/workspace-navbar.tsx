@@ -1,5 +1,7 @@
 "use client";
+import { useEffect, useState } from "react";
 import ProfileAvatar from "@/components/ui/profile-avatar";
+import { createClient } from "@/lib/supabase/client";
 import {
   Bell,
   Search,
@@ -7,6 +9,17 @@ import {
 } from "lucide-react";
 
 export default function WorkspaceNavbar() {
+  const [email, setEmail] = useState<string | null>(null);
+
+  useEffect(() => {
+    const supabase = createClient();
+
+    supabase.auth.getUser().then(({ data }) => {
+      if (data.user?.email) {
+        setEmail(data.user.email);
+      }
+    });
+  }, []);
   return (
     <header className="fixed top-0 left-0 w-full z-50 flex h-[72px] items-center justify-between border-b border-white/[0.04] bg-black/20 px-6 backdrop-blur-3xl">
       <div className="flex items-center gap-4">
@@ -25,7 +38,7 @@ export default function WorkspaceNavbar() {
 
         
 
-        <ProfileAvatar email="user@example.com" />
+        <ProfileAvatar email={email ?? undefined} />
       </div>
     </header>
   );

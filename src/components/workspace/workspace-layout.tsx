@@ -13,7 +13,7 @@ export default function WorkspaceLayout({
   const { collapsed } = useSidebarStore();
 
   return (
-    <div className="flex h-screen overflow-hidden bg-[#070B14] text-white">
+    <div className="flex h-screen overflow-hidden bg-background text-foreground">
       <WorkspaceSidebar />
 
       <div className="flex flex-1 flex-col overflow-hidden">

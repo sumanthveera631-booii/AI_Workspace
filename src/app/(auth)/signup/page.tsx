@@ -1,20 +1,30 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { motion } from "framer-motion";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { signUp } from "@/lib/supabase/auth-actions";
 import { createClient } from "@/lib/supabase/client";
 
-export default function SignupPage() {
+function SignupForm() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const emailParam = searchParams.get("email") || "";
+  const passwordParam = searchParams.get("password") || "";
 
   const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const [email, setEmail] = useState(emailParam);
+  const [password, setPassword] = useState(passwordParam);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [session, setSession] = useState<any>(null);
+  const [signedOut, setSignedOut] = useState(false);
+
+  useEffect(() => {
+    if (emailParam) setEmail(emailParam);
+    if (passwordParam) setPassword(passwordParam);
+  }, [emailParam, passwordParam]);
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -41,7 +51,12 @@ export default function SignupPage() {
         return;
       }
 
-      router.push("/login?message=Check your email to confirm your account");
+      if (result.session) {
+        router.push("/dashboard");
+        router.refresh();
+      } else {
+        router.push("/login?message=Account created successfully! Please sign in.");
+      }
     } catch (err) {
       console.error(err);
       setError("Something went wrong");
@@ -49,24 +64,77 @@ export default function SignupPage() {
     }
   }
 
-  const handleGoogleSignIn = async () => {
+  useEffect(() => {
     const supabase = createClient();
-    await supabase.auth.signInWithOAuth({
-      provider: "google",
-      options: {
-        redirectTo: `${window.location.origin}/auth/callback`,
-      },
+
+    supabase.auth.getSession().then(({ data }) => {
+      setSession(data.session || null);
     });
+  }, [signedOut]);
+
+  const handleGoogleSignIn = async () => {
+    setError("");
+    const supabase = createClient();
+    await supabase.auth.signOut();
+    setSignedOut(true);
+
+    try {
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: "google",
+        options: {
+          redirectTo: `${window.location.origin}/auth/callback`,
+          queryParams: {
+            prompt: "select_account",
+            access_type: "offline",
+          },
+        },
+      });
+
+      if (error) {
+        if (error.message.toLowerCase().includes("not enabled") || error.message.toLowerCase().includes("unsupported")) {
+          setError(
+            "Google Sign-In isn't enabled yet. Your administrator needs to set it up. Try creating an account with email instead."
+          );
+        } else {
+          setError(error.message || "Unable to sign in with Google. Please try again.");
+        }
+      }
+    } catch (err) {
+      console.error(err);
+      setError("Unable to sign in with Google. Please check your connection and try again.");
+    }
   };
 
   const handleGitHubSignIn = async () => {
+    setError("");
     const supabase = createClient();
-    await supabase.auth.signInWithOAuth({
-      provider: "github",
-      options: {
-        redirectTo: `${window.location.origin}/auth/callback`,
-      },
-    });
+    await supabase.auth.signOut();
+    setSignedOut(true);
+
+    try {
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: "github",
+        options: {
+          redirectTo: `${window.location.origin}/auth/callback`,
+          queryParams: {
+            allow_signup: "true",
+          },
+        },
+      });
+
+      if (error) {
+        if (error.message.toLowerCase().includes("not enabled") || error.message.toLowerCase().includes("unsupported")) {
+          setError(
+            "GitHub Sign-In isn't enabled yet. Your administrator needs to set it up. Try creating an account with email instead."
+          );
+        } else {
+          setError(error.message || "Unable to sign in with GitHub. Please try again.");
+        }
+      }
+    } catch (err) {
+      console.error(err);
+      setError("Unable to sign in with GitHub. Please check your connection and try again.");
+    }
   };
 
   return (
@@ -120,6 +188,27 @@ export default function SignupPage() {
           {error && (
             <div className="rounded-xl border border-red-500/20 bg-red-500/10 px-4 py-3 text-sm text-red-400">
               {error}
+            </div>
+          )}
+
+          {session?.user && (
+            <div className="rounded-xl border border-yellow-500/20 bg-yellow-500/10 px-4 py-3 text-sm text-yellow-100">
+              <p>
+                You are currently signed in as <strong>{session.user.email}</strong>.
+                Please log out if you want to create a different account.
+              </p>
+              <button
+                type="button"
+                onClick={async () => {
+                  const supabase = createClient();
+                  await supabase.auth.signOut();
+                  setSession(null);
+                  setSignedOut(true);
+                }}
+                className="mt-3 inline-flex rounded-xl bg-white px-4 py-2 text-xs font-semibold text-black transition hover:bg-white/90"
+              >
+                Log out current session
+              </button>
             </div>
           )}
 
@@ -185,5 +274,19 @@ export default function SignupPage() {
         </p>
       </motion.div>
     </div>
+  );
+}
+
+export default function SignupPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="flex min-h-screen items-center justify-center bg-[#050816]">
+          <div className="h-8 w-8 animate-spin rounded-full border-2 border-white/20 border-t-white" />
+        </div>
+      }
+    >
+      <SignupForm />
+    </Suspense>
   );
 }

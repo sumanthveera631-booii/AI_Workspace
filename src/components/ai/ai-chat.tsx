@@ -44,7 +44,7 @@ export default function AIChat() {
   const [threads, setThreads] = useState<ChatThread[]>([]);
   const [activeThreadId, setActiveThreadId] = useState("thread-1");
   const [isThinking, setIsThinking] = useState(false);
-  const [activeModel, setActiveModel] = useState("Nexus-Pro-v3 (Ultra)");
+  const [activeModel, setActiveModel] = useState("gpt-4o-mini");
 
   const chatEndRef = useRef<HTMLDivElement>(null);
 
@@ -77,13 +77,12 @@ export default function AIChat() {
   const activeThread = threads.find((t) => t.id === activeThreadId) || threads[0] || defaultThreads[0];
   const messages = activeThread?.messages || [];
 
-  const handleSend = (text: string) => {
+  const handleSend = async (text: string) => {
     const userMsg: ChatMessage = { role: "user", content: text };
     const updatedMessages = [...messages, userMsg];
 
     const updatedThreads = threads.map((thread) => {
       if (thread.id === activeThreadId) {
-        // Dynamic title change if it was default
         const newTitle = thread.title.startsWith("New Chat") || thread.title === "Workspace Setup & Architecture"
           ? text.slice(0, 30) + (text.length > 30 ? "..." : "")
           : thread.title;
@@ -95,22 +94,22 @@ export default function AIChat() {
     saveThreads(updatedThreads);
     setIsThinking(true);
 
-    // AI logic simulation
-    setTimeout(() => {
-      let replyContent = `Nexus AI completed analysis on: "${text}"\n\n`;
+    try {
+      const response = await fetch("/api/ai", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          messages: updatedMessages,
+          model: activeModel,
+        }),
+      });
 
-      if (text.toLowerCase().includes("roadmap")) {
-        replyContent += "### 🚀 2026 Production Roadmap\n1. **Phased UI Engineering:** Establish unified HSL theme styles.\n2. **WebGL Acceleration:** Load dynamic particle systems via GPU.\n3. **Realtime Multiplayer:** Coordinate peer cursors via WebRTC.\n\n*Optimized for extreme startup polish.*";
-      } else if (text.toLowerCase().includes("webrtc") || text.toLowerCase().includes("coordinate")) {
-        replyContent += "### 🌐 Collaborative Cursors Logic\nCoordinates are synchronized dynamically in your `live-cursors.tsx` component using local broadcast channel bindings. High performance rendering prevents layout re-draws.";
-      } else if (text.toLowerCase().includes("prisma") || text.toLowerCase().includes("database")) {
-        replyContent += "### 📊 Prisma Database Structure\nYour `schema.prisma` is pre-configured with `User`, `Workspace`, `Document`, `Block`, `Comment`, and `Task` structures. DB connection is neonatal Neon PostgreSQL optimized for instant transaction times.";
-      } else {
-        replyContent += "I have searched the Nexus knowledge graph. All configurations are state-of-the-art. Let's sync this to your workspace doc at /editor.";
-      }
+      const data = await response.json();
+      const replyContent = data?.text || "Nexus AI could not generate a response. Please try again.";
 
       const assistMsg: ChatMessage = { role: "assistant", content: replyContent };
-      
       const finishedThreads = updatedThreads.map((t) => {
         if (t.id === activeThreadId) {
           return { ...t, messages: [...t.messages, assistMsg] };
@@ -119,8 +118,21 @@ export default function AIChat() {
       });
 
       saveThreads(finishedThreads);
+    } catch (error) {
+      const assistMsg: ChatMessage = {
+        role: "assistant",
+        content: "Nexus AI is temporarily unavailable. Please check your API configuration or try again later.",
+      };
+      const finishedThreads = updatedThreads.map((t) => {
+        if (t.id === activeThreadId) {
+          return { ...t, messages: [...t.messages, assistMsg] };
+        }
+        return t;
+      });
+      saveThreads(finishedThreads);
+    } finally {
       setIsThinking(false);
-    }, 1500);
+    }
   };
 
   const createNewThread = () => {
@@ -199,9 +211,10 @@ export default function AIChat() {
             onChange={(e) => setActiveModel(e.target.value)}
             className="w-full rounded-xl border border-white/10 bg-[#0B1120] px-3 py-2 text-3xs text-white/80 outline-none"
           >
-            <option>Nexus-Pro-v3 (Ultra)</option>
-            <option>Gemini-1.5-Pro</option>
-            <option>ChatGPT-o1-Mini</option>
+            <option value="gpt-4o-mini">ChatGPT-o1-Mini</option>
+            <option value="gpt-4">GPT-4</option>
+            <option value="gpt-3.5-turbo">GPT-3.5-Turbo</option>
+            <option value="gemini-1.5-pro">Gemini-1.5-Pro</option>
           </select>
         </div>
       </aside>

@@ -52,7 +52,11 @@ function Particles() {
 export default function ParticleScene() {
   return (
     <div className="absolute inset-0 transform-gpu will-change-transform">
-      <Canvas camera={{ position: [0, 0, 5] }}>
+      <Canvas
+        camera={{ position: [0, 0, 5] }}
+        dpr={[1, 1.25]}
+        gl={{ antialias: false, powerPreference: "low-power" }}
+      >
         <Particles />
       </Canvas>
     </div>

@@ -3,17 +3,21 @@
 
 "use client";
 
+import dynamic from "next/dynamic";
 import HeroBackground from "./hero-background";
 import HeroContent from "./hero-content";
 import FloatingWindows from "./floating-windows";
 import HeroGrid from "./hero-grid";
 
+const ParticleScene = dynamic(
+  () => import("@/components/three/particle-scene"),
+  { ssr: false }
+);
 
-import ParticleScene from "@/components/three/particle-scene";
-
-import AIOrb from "@/components/three/ai-orb";
-
-import MeshGradient from "@/components/three/mesh-gradient";
+const MeshGradient = dynamic(
+  () => import("@/components/three/mesh-gradient"),
+  { ssr: false }
+);
 
 
 

@@ -2,9 +2,11 @@
 
 import gsap from "gsap";
 import { useEffect, useRef } from "react";
+import { useLowEndDevice } from "@/hooks/use-low-end-device";
 
 export default function AIPreview() {
   const textRef = useRef<HTMLSpanElement>(null);
+  const lowEnd = useLowEndDevice();
 
   useEffect(() => {
     const words = [
@@ -21,29 +23,30 @@ export default function AIPreview() {
 
       textRef.current.innerText = words[index];
 
-      gsap.fromTo(
-        textRef.current,
-        {
-          opacity: 0,
-          y: 10,
-        },
-        {
-          opacity: 1,
-          y: 0,
-          duration: 0.8,
-        }
-      );
+      if (!lowEnd) {
+        gsap.fromTo(
+          textRef.current,
+          {
+            opacity: 0,
+            y: 10,
+          },
+          {
+            opacity: 1,
+            y: 0,
+            duration: 0.8,
+          }
+        );
+      }
 
       index = (index + 1) % words.length;
     };
 
     updateText();
 
-    const interval = setInterval(updateText, 2500);
+    const interval = setInterval(updateText, lowEnd ? 5000 : 2500);
 
     return () => clearInterval(interval);
-  }, []);
-
+  }, [lowEnd]);
   return (
     <div className="transform-gpu will-change-transform mt-20 w-full max-w-4xl rounded-[32px] border border-white/10 bg-black/30 p-8 backdrop-blur-2xl">
       <div className="flex gap-2">

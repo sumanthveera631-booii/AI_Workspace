@@ -63,6 +63,12 @@ export default function SlashCommandMenu({ editor, onClose }: SlashCommandMenuPr
   const [selectedIndex, setSelectedIndex] = useState(0);
   const containerRef = useRef<HTMLDivElement>(null);
 
+  const selectedIndexRef = useRef(0);
+
+  useEffect(() => {
+    selectedIndexRef.current = selectedIndex;
+  }, [selectedIndex]);
+
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === "ArrowDown") {
@@ -73,7 +79,7 @@ export default function SlashCommandMenu({ editor, onClose }: SlashCommandMenuPr
         setSelectedIndex((prev) => (prev - 1 + commands.length) % commands.length);
       } else if (e.key === "Enter") {
         e.preventDefault();
-        triggerCommand(selectedIndex);
+        triggerCommand(selectedIndexRef.current);
       } else if (e.key === "Escape") {
         e.preventDefault();
         onClose();
@@ -82,7 +88,7 @@ export default function SlashCommandMenu({ editor, onClose }: SlashCommandMenuPr
 
     window.addEventListener("keydown", handleKeyDown, true);
     return () => window.removeEventListener("keydown", handleKeyDown, true);
-  }, [selectedIndex, onClose]);
+  }, [onClose, editor]);
 
   const triggerCommand = (index: number) => {
     // Delete the slash character '/' typed

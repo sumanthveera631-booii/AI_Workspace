@@ -1,6 +1,7 @@
-import WorkspaceLayout from "@/components/workspace/workspace-layout";
+"use client";
 
-import AIChat from "@/components/ai/ai-chat";
+import WorkspaceLayout from "@/components/workspace/workspace-layout";
+import { DynamicAIChat } from "@/lib/dynamic-imports";
 
 export default function AIPage() {
   return (
@@ -54,7 +55,7 @@ export default function AIPage() {
 
         {/* CHAT */}
         <div className="flex-1 overflow-hidden">
-          <AIChat />
+          <DynamicAIChat />
         </div>
       </div>
     </WorkspaceLayout>

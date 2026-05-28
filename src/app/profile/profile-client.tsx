@@ -5,6 +5,7 @@ import WorkspaceLayout from "@/components/workspace/workspace-layout";
 import { Calendar, FileText, FolderKanban, CircleCheck as CheckCircle2, CreditCard as Edit3 } from "lucide-react";
 import Link from "next/link";
 import { updateProfile } from "@/lib/actions/profile";
+import { signOut } from "@/lib/supabase/auth-actions";
 import { toast } from "sonner";
 
 interface ProfileClientProps {
@@ -62,11 +63,13 @@ export default function ProfileClient({ user: initialUser, stats }: ProfileClien
                   <img
                     src={user.avatar_url}
                     alt={user.name}
+                    loading="lazy"
+                    decoding="async"
                     className="h-24 w-24 rounded-2xl border border-white/20"
                   />
                 ) : (
                   <div className="flex h-24 w-24 items-center justify-center rounded-2xl bg-gradient-to-br from-cyan-500 to-blue-600 text-3xl font-bold text-white">
-                    {user.name.charAt(0).toUpperCase()}
+                    {(user.email?.charAt(0) || user.name?.charAt(0) || "U").toUpperCase()}
                   </div>
                 )}
 
@@ -114,13 +117,21 @@ export default function ProfileClient({ user: initialUser, stats }: ProfileClien
                   </button>
                 </div>
               ) : (
-                <button
-                  onClick={() => setEditing(true)}
-                  className="flex items-center gap-2 rounded-xl border border-white/10 px-4 py-2 text-sm text-white/70 transition hover:bg-white/[0.05]"
-                >
-                  <Edit3 size={16} />
-                  Edit
-                </button>
+                <div className="flex flex-col items-end gap-2">
+                  <button
+                    onClick={() => setEditing(true)}
+                    className="flex items-center gap-2 rounded-xl border border-white/10 px-4 py-2 text-sm text-white/70 transition hover:bg-white/[0.05]"
+                  >
+                    <Edit3 size={16} />
+                    Edit
+                  </button>
+                  <button
+                    onClick={async () => await signOut()}
+                    className="rounded-xl border border-red-500/20 bg-red-500/10 px-4 py-2 text-sm text-red-200 transition hover:bg-red-500/20"
+                  >
+                    Logout
+                  </button>
+                </div>
               )}
             </div>
 

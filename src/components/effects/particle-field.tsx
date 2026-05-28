@@ -2,6 +2,7 @@
 
 import { motion } from "motion/react";
 import { useEffect, useState } from "react";
+import { useLowEndDevice } from "@/hooks/use-low-end-device";
 
 interface Particle {
   left: number;
@@ -11,10 +12,12 @@ interface Particle {
 }
 
 export default function ParticleField() {
+  const lowEnd = useLowEndDevice();
   const [particles, setParticles] = useState<Particle[]>([]);
 
   useEffect(() => {
-    const generated = Array.from({ length: 40 }).map(() => ({
+    const count = lowEnd ? 18 : 40;
+    const generated = Array.from({ length: count }).map(() => ({
       left: Math.random() * 100,
       top: Math.random() * 100,
       duration: 8 + Math.random() * 5,
@@ -22,8 +25,7 @@ export default function ParticleField() {
     }));
 
     setParticles(generated);
-  }, []);
-
+  }, [lowEnd]);
   return (
     <div className="fixed inset-0 overflow-hidden z-[1]">
       {particles.map((particle, i) => (

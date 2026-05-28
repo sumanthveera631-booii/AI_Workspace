@@ -28,7 +28,7 @@ function GeometryGroup() {
         floatIntensity={4}
       >
         <mesh position={[2, 1, -1]}>
-          <torusGeometry args={[1, 0.3, 32, 100]} />
+          <torusGeometry args={[1, 0.3, 24, 64]} />
 
           <meshStandardMaterial
             color="#06b6d4"

@@ -2,8 +2,10 @@
 
 import { motion, useMotionValue, useSpring } from "motion/react";
 import { useEffect } from "react";
+import { useLowEndDevice } from "@/hooks/use-low-end-device";
 
 export default function CursorGlow() {
+  const lowEnd = useLowEndDevice();
   const mouseX = useMotionValue(0);
   const mouseY = useMotionValue(0);
 
@@ -18,6 +20,8 @@ export default function CursorGlow() {
   });
 
   useEffect(() => {
+    if (lowEnd) return;
+
     const move = (e: MouseEvent) => {
       mouseX.set(e.clientX - 200);
       mouseY.set(e.clientY - 200);
@@ -26,7 +30,11 @@ export default function CursorGlow() {
     window.addEventListener("mousemove", move);
 
     return () => window.removeEventListener("mousemove", move);
-  }, [mouseX, mouseY]);
+  }, [lowEnd, mouseX, mouseY]);
+
+  if (lowEnd) {
+    return null;
+  }
 
   return (
     <motion.div

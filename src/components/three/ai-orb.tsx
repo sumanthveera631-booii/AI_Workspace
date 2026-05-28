@@ -23,7 +23,7 @@ function Orb() {
 
   return (
     <mesh ref={meshRef}>
-      <sphereGeometry args={[1.5, 128, 128]} />
+      <sphereGeometry args={[1.5, 64, 64]} />
 
       <MeshDistortMaterial
         color="#8b5cf6"
@@ -38,12 +38,14 @@ function Orb() {
 export default function AIOrb() {
   return (
     <div className="absolute inset-0 transform-gpu will-change-transform">
-      <Canvas camera={{ position: [0, 0, 5] }}>
+      <Canvas
+        camera={{ position: [0, 0, 5] }}
+        dpr={[1, 1.25]}
+        gl={{ antialias: false, powerPreference: "low-power" }}
+      >
         <ambientLight intensity={1.5} />
 
-        <directionalLight
-          position={[2, 2, 5]}
-        />
+        <directionalLight position={[2, 2, 5]} />
 
         <Orb />
       </Canvas>

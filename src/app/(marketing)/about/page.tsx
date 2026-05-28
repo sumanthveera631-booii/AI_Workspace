@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Navbar from "@/components/marketing/navbar";
 import Link from "next/link";
 import { Mail } from "lucide-react";
@@ -111,11 +112,13 @@ export default function AboutPage() {
                 key={idx}
                 className="group rounded-[32px] border border-white/10 bg-white/[0.03] p-6 text-center backdrop-blur-3xl transition hover:border-white/20"
               >
-                <img
-                  src={member.image}
-                  alt={member.name}
-                  className="mx-auto h-24 w-24 rounded-2xl object-cover"
-                />
+                <Image
+                src={member.image}
+                alt={member.name}
+                width={96}
+                height={96}
+                className="mx-auto h-24 w-24 rounded-2xl object-cover"
+              />
                 <h3 className="mt-4 text-lg font-semibold text-white">{member.name}</h3>
                 <p className="text-sm text-cyan-400">{member.role}</p>
                 <p className="mt-2 text-xs text-white/50">{member.bio}</p>

@@ -139,6 +139,21 @@ ALTER TABLE ai_messages ENABLE ROW LEVEL SECURITY;
 ALTER TABLE notifications ENABLE ROW LEVEL SECURITY;
 ALTER TABLE activities ENABLE ROW LEVEL SECURITY;
 
+-- Helper functions to check workspace membership and admin/owner role.
+-- These are SECURITY DEFINER so policy checks can use them without triggering RLS recursion.
+CREATE OR REPLACE FUNCTION is_workspace_member(w_id uuid, u_id uuid) RETURNS boolean
+LANGUAGE sql SECURITY DEFINER AS $$
+  SELECT EXISTS (SELECT 1 FROM workspace_members WHERE workspace_id = w_id AND user_id = u_id);
+$$;
+
+CREATE OR REPLACE FUNCTION is_workspace_admin_or_owner(w_id uuid, u_id uuid) RETURNS boolean
+LANGUAGE sql SECURITY DEFINER AS $$
+  SELECT (
+    EXISTS (SELECT 1 FROM workspaces WHERE id = w_id AND owner_id = u_id)
+    OR EXISTS (SELECT 1 FROM workspace_members WHERE workspace_id = w_id AND user_id = u_id AND role IN ('admin','owner'))
+  );
+$$;
+
 -- PROFILES POLICIES
 CREATE POLICY "Users can view own profile"
   ON profiles FOR SELECT
@@ -190,11 +205,8 @@ CREATE POLICY "Users can view members of workspaces they belong to"
   ON workspace_members FOR SELECT
   TO authenticated
   USING (
-    EXISTS (
-      SELECT 1 FROM workspace_members wm
-      WHERE wm.workspace_id = workspace_members.workspace_id
-      AND wm.user_id = auth.uid()
-    )
+    auth.uid() = user_id
+    OR is_workspace_member(workspace_members.workspace_id, auth.uid())
     OR EXISTS (
       SELECT 1 FROM workspaces
       WHERE workspaces.id = workspace_members.workspace_id
@@ -206,24 +218,14 @@ CREATE POLICY "Workspace owners and admins can manage members"
   ON workspace_members FOR INSERT
   TO authenticated
   WITH CHECK (
-    EXISTS (
-      SELECT 1 FROM workspaces w
-      LEFT JOIN workspace_members wm ON wm.workspace_id = w.id AND wm.user_id = auth.uid()
-      WHERE w.id = workspace_members.workspace_id
-      AND (w.owner_id = auth.uid() OR wm.role IN ('admin', 'owner'))
-    )
+    is_workspace_admin_or_owner(workspace_members.workspace_id, auth.uid())
   );
 
 CREATE POLICY "Workspace owners and admins can delete members"
   ON workspace_members FOR DELETE
   TO authenticated
   USING (
-    EXISTS (
-      SELECT 1 FROM workspaces w
-      LEFT JOIN workspace_members wm ON wm.workspace_id = w.id AND wm.user_id = auth.uid()
-      WHERE w.id = workspace_members.workspace_id
-      AND (w.owner_id = auth.uid() OR wm.role IN ('admin', 'owner'))
-    )
+    is_workspace_admin_or_owner(workspace_members.workspace_id, auth.uid())
   );
 
 -- DOCUMENTS POLICIES

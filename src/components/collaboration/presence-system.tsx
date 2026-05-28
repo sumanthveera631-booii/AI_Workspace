@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import { Users, Wifi, UserCheck, Shield } from "lucide-react";
+import { useLowEndDevice } from "@/hooks/use-low-end-device";
 
 interface Collaborator {
   name: string;
@@ -19,6 +20,8 @@ const initialUsers: Collaborator[] = [
 export default function PresenceSystem() {
   const [presence, setPresence] = useState<Collaborator[]>(initialUsers);
 
+  const lowEnd = useLowEndDevice();
+
   useEffect(() => {
     const timer = setInterval(() => {
       setPresence((prev) =>
@@ -28,10 +31,10 @@ export default function PresenceSystem() {
           ping: Math.max(8, Math.min(120, user.ping + Math.floor(Math.random() * 10) - 5)),
         }))
       );
-    }, 3000);
+    }, lowEnd ? 6000 : 3000);
 
     return () => clearInterval(timer);
-  }, []);
+  }, [lowEnd]);
 
   const handleStatusToggle = (name: string) => {
     const statuses = ["Editing Notes", "Analyzing Logs", "Syncing Graph", "Commenting", "Idle"];

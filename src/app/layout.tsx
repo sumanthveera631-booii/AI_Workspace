@@ -1,17 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
-import ErrorBoundary from "@/components/system/error-boundary";
-import AuroraBackground from "@/components/effects/aurora-background";
-import BeamEffects from "@/components/effects/beam-effects";
-import CursorGlow from "@/components/effects/cursor-glow";
-import FloatingOrbs from "@/components/effects/floating-orbs";
-import GridBackground from "@/components/effects/grid-background";
-import NoiseOverlay from "@/components/effects/noise-overlay";
-import ParticleField from "@/components/effects/particle-field";
-import { AuthProvider } from "@/components/providers/session-provider";
-import { Toaster } from "sonner";
-import ShortcutHandler from "@/components/command/shortcut-handler";
-import CommandMenu from "@/components/command/command-menu";
+import RootLayoutClient from "@/components/layout/root-layout-client";
 
 export const metadata: Metadata = {
   title: "AI Workspace",
@@ -25,25 +14,8 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className="bg-[#070B14] text-white overflow-x-hidden">
-        <AuroraBackground />
-        <GridBackground />
-        <ParticleField />
-        <FloatingOrbs />
-        <BeamEffects />
-        <CursorGlow />
-        <NoiseOverlay />
-
-        <div className="relative z-10">
-          <ErrorBoundary>
-            <AuthProvider>
-              <ShortcutHandler />
-              <CommandMenu />
-              <Toaster theme="dark" closeButton richColors />
-              {children}
-            </AuthProvider>
-          </ErrorBoundary>
-        </div>
+      <body className="bg-background text-foreground overflow-x-hidden">
+        <RootLayoutClient>{children}</RootLayoutClient>
       </body>
     </html>
   );
