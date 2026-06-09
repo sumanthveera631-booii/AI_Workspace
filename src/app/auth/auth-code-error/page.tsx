@@ -5,6 +5,8 @@ import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { AlertCircle, Settings, MessageSquare } from "lucide-react";
 
+export const dynamic = "force-dynamic";
+
 export default function AuthCodeErrorPage() {
   const searchParams = useSearchParams();
   const error = searchParams.get("error");
