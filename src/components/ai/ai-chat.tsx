@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useMemo, useRef, useCallback, useTransition } from "react";
 import AIMessage from "./ai-message";
 import AIInput from "./ai-input";
 import AIToolbar from "./ai-toolbar";
@@ -65,17 +65,33 @@ export default function AIChat() {
     }
   }, []);
 
-  const saveThreads = (updatedThreads: ChatThread[]) => {
+  const [isPending, startTransition] = useTransition();
+
+  const schedulePersist = useCallback((payload: string) => {
+    if (typeof window === "undefined") return;
+    const persist = () => window.localStorage.setItem("nexus-chat-threads", payload);
+
+    if ("requestIdleCallback" in window) {
+      (window as any).requestIdleCallback(persist, { timeout: 500 });
+    } else {
+      window.setTimeout(persist, 200);
+    }
+  }, []);
+
+  const saveThreads = useCallback((updatedThreads: ChatThread[]) => {
     setThreads(updatedThreads);
-    localStorage.setItem("nexus-chat-threads", JSON.stringify(updatedThreads));
-  };
+    schedulePersist(JSON.stringify(updatedThreads));
+  }, [schedulePersist]);
+
+  const activeThread = useMemo(
+    () => threads.find((t) => t.id === activeThreadId) || threads[0] || defaultThreads[0],
+    [threads, activeThreadId]
+  );
+  const messages = activeThread?.messages || [];
 
   useEffect(() => {
     chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [threads, isThinking]);
-
-  const activeThread = threads.find((t) => t.id === activeThreadId) || threads[0] || defaultThreads[0];
-  const messages = activeThread?.messages || [];
+  }, [messages.length, isThinking]);
 
   const handleSend = async (text: string) => {
     const userMsg: ChatMessage = { role: "user", content: text };
@@ -91,7 +107,7 @@ export default function AIChat() {
       return thread;
     });
 
-    saveThreads(updatedThreads);
+    startTransition(() => saveThreads(updatedThreads));
     setIsThinking(true);
 
     try {
@@ -117,7 +133,7 @@ export default function AIChat() {
         return t;
       });
 
-      saveThreads(finishedThreads);
+      startTransition(() => saveThreads(finishedThreads));
     } catch (error) {
       const assistMsg: ChatMessage = {
         role: "assistant",
@@ -135,25 +151,25 @@ export default function AIChat() {
     }
   };
 
-  const createNewThread = () => {
+  const createNewThread = useCallback(() => {
     const newThread: ChatThread = {
       id: crypto.randomUUID(),
       title: `New Chat Thread ${threads.length + 1}`,
       messages: [{ role: "assistant", content: "Ask me workspace queries. I am calibrated to analyze systems in real time." }],
     };
     const updated = [newThread, ...threads];
-    saveThreads(updated);
+    startTransition(() => saveThreads(updated));
     setActiveThreadId(newThread.id);
-  };
+  }, [saveThreads, threads]);
 
-  const deleteThread = (id: string, e: React.MouseEvent) => {
+  const deleteThread = useCallback((id: string, e: React.MouseEvent) => {
     e.stopPropagation();
     const updated = threads.filter((t) => t.id !== id);
-    saveThreads(updated);
+    startTransition(() => saveThreads(updated));
     if (activeThreadId === id && updated.length > 0) {
       setActiveThreadId(updated[0].id);
     }
-  };
+  }, [activeThreadId, saveThreads, threads]);
 
   return (
     <div className="flex h-[calc(100vh-72px)] overflow-hidden bg-[#070B14] text-white">

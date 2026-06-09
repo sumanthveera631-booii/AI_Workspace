@@ -1,5 +1,7 @@
 "use client";
 
+import { useMemo } from "react";
+import { usePathname } from "next/navigation";
 import type { ReactNode } from "react";
 import {
   DynamicClientBackgroundEffects,
@@ -14,9 +16,28 @@ interface RootLayoutClientProps {
 }
 
 export default function RootLayoutClient({ children }: RootLayoutClientProps) {
+  const pathname = usePathname();
+
+  const showBackgroundEffects = useMemo(() => {
+    if (!pathname) return false;
+    const excludedPaths = [
+      "/ai",
+      "/dashboard",
+      "/editor",
+      "/profile",
+      "/workspaces",
+      "/settings",
+      "/auth",
+      "/collaboration",
+      "/command",
+    ];
+
+    return !excludedPaths.some((path) => pathname.startsWith(path));
+  }, [pathname]);
+
   return (
     <>
-      <DynamicClientBackgroundEffects />
+      {showBackgroundEffects && <DynamicClientBackgroundEffects />}
 
       <div className="relative z-10">
         <ErrorBoundary>

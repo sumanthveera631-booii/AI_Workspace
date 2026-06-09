@@ -24,10 +24,9 @@ const MeshGradient = dynamic(
 
 export default function HeroSection() {
   return (
-    <section className="relative flex min-h-screen items-center justify-center overflow-hidden px-6 pt-32">
+    <section className="relative flex min-h-screen items-center justify-center overflow-hidden px-6 py-12">
       <HeroBackground />
 
-  
       {/* GPU VISUALS */}
       <div className="absolute inset-0 z-0">
           <MeshGradient />

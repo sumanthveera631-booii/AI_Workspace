@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useState, useCallback, memo } from "react";
 import { Send, FileUp, Sparkles } from "lucide-react";
 import VoiceAssistant from "./voice-assistant";
 
@@ -7,20 +7,20 @@ interface AIInputProps {
   onSend: (message: string) => void;
 }
 
-export default function AIInput({ onSend }: AIInputProps) {
+function AIInput({ onSend }: AIInputProps) {
   const [value, setValue] = useState("");
   const [fileAttached, setFileAttached] = useState(false);
 
-  const handleSend = () => {
+  const handleSend = useCallback(() => {
     if (!value.trim()) return;
     onSend(value);
     setValue("");
     setFileAttached(false);
-  };
+  }, [onSend, value]);
 
-  const handleTranscript = (transcriptText: string) => {
+  const handleTranscript = useCallback((transcriptText: string) => {
     setValue((prev) => (prev ? prev + " " + transcriptText : transcriptText));
-  };
+  }, []);
 
   const handleFileUploadSim = () => {
     setFileAttached(true);
@@ -81,3 +81,5 @@ export default function AIInput({ onSend }: AIInputProps) {
     </div>
   );
 }
+
+export default memo(AIInput);

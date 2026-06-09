@@ -1,4 +1,5 @@
 "use client";
+import { memo } from "react";
 
 import {
   Sparkles,
@@ -6,7 +7,7 @@ import {
   Wand2,
 } from "lucide-react";
 
-export default function AIToolbar() {
+function AIToolbar() {
   return (
     <div className="flex items-center justify-between border-b border-white/[0.05] bg-black/20 px-6 py-4 backdrop-blur-3xl">
       <div className="flex items-center gap-3">
@@ -37,3 +38,5 @@ export default function AIToolbar() {
     </div>
   );
 }
+
+export default memo(AIToolbar);

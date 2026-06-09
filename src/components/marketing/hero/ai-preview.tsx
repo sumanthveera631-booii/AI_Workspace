@@ -48,7 +48,7 @@ export default function AIPreview() {
     return () => clearInterval(interval);
   }, [lowEnd]);
   return (
-    <div className="transform-gpu will-change-transform mt-20 w-full max-w-4xl rounded-[32px] border border-white/10 bg-black/30 p-8 backdrop-blur-2xl">
+    <div className="transform-gpu will-change-transform mt-10 w-full max-w-4xl rounded-[32px] border border-white/10 bg-black/30 p-8 backdrop-blur-2xl">
       <div className="flex gap-2">
         <div className="h-3 w-3 rounded-full bg-red-500" />
         <div className="h-3 w-3 rounded-full bg-yellow-500" />

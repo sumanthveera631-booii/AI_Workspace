@@ -31,12 +31,14 @@ export async function POST(request: Request) {
   const messages = Array.isArray(body?.messages) ? body.messages : [];
   const model = normalizeModel(body?.model || "groq-1.0");
 
-  const prompt = messages
+  const systemInstructions = `You are Nexus AI, a friendly interactive assistant. Respond directly and conversationally to the user's request. Do not include internal reasoning, chain-of-thought, prompt evaluation, or meta commentary. Focus only on the user's question and provide a clear, helpful answer.`;
+
+  const prompt = `${systemInstructions}\n\n${messages
     .map((message: { role: string; content: string }) => {
       const role = message.role === "assistant" ? "Assistant" : "User";
       return `${role}: ${message.content}`;
     })
-    .join("\n");
+    .join("\n")}`;
 
   try {
     const response = await fetch(`${GROQ_API_ENDPOINT}/responses`, {

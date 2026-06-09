@@ -1,9 +1,10 @@
 "use client";
+import { memo } from "react";
 import ReactMarkdown from "react-markdown";
 import StreamRenderer from "./stream-renderer";
 import { Sparkles, User } from "lucide-react";
 
-export default function AIMessage({
+function AIMessage({
   role,
   content,
 }: {
@@ -16,7 +17,7 @@ export default function AIMessage({
     <div
       className={`flex gap-4 items-start ${
         isUser ? "flex-row-reverse" : "flex-row"
-      } animate-[fadeIn_0.35s_ease-out]`}
+      }`}
     >
       {/* AVATAR BOX */}
       <div
@@ -48,3 +49,5 @@ export default function AIMessage({
     </div>
   );
 }
+
+export default memo(AIMessage);
