@@ -86,8 +86,8 @@ export default function SlashCommandMenu({ editor, onClose }: SlashCommandMenuPr
       }
     };
 
-    window.addEventListener("keydown", handleKeyDown, true);
-    return () => window.removeEventListener("keydown", handleKeyDown, true);
+    addEventListener("keydown", handleKeyDown, true);
+    return () => removeEventListener("keydown", handleKeyDown, true);
   }, [onClose, editor]);
 
   const triggerCommand = (index: number) => {

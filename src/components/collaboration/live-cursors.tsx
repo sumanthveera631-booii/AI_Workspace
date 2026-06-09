@@ -44,11 +44,11 @@ export default function LiveCursors() {
       }));
     };
 
-    window.addEventListener("mousemove", handleMouseMove);
-    channel.addEventListener("message", handleMessage);
+    addEventListener(\"mousemove\", handleMouseMove);
+    channel.addEventListener(\"message\", handleMessage);
 
     return () => {
-      window.removeEventListener("mousemove", handleMouseMove);
+      removeEventListener(\"mousemove\", handleMouseMove);
       channel.removeEventListener("message", handleMessage);
       channel.close();
     };

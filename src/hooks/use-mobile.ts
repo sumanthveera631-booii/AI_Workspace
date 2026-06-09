@@ -12,10 +12,10 @@ export function useMobile() {
 
     update();
 
-    window.addEventListener("resize", update);
+    addEventListener("resize", update);
 
     return () =>
-      window.removeEventListener("resize", update);
+      removeEventListener("resize", update);
   }, []);
 
   return mobile;

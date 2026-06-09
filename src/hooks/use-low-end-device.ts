@@ -23,9 +23,9 @@ export function useLowEndDevice() {
     };
 
     evaluate();
-    window.addEventListener("resize", evaluate);
+    addEventListener("resize", evaluate);
 
-    return () => window.removeEventListener("resize", evaluate);
+    return () => removeEventListener("resize", evaluate);
   }, []);
 
   return lowEnd;

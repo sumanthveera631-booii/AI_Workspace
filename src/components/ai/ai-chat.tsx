@@ -69,12 +69,13 @@ export default function AIChat() {
 
   const schedulePersist = useCallback((payload: string) => {
     if (typeof window === "undefined") return;
-    const persist = () => window.localStorage.setItem("nexus-chat-threads", payload);
+
+    const persist = () => localStorage.setItem("nexus-chat-threads", payload);
 
     if ("requestIdleCallback" in window) {
       (window as any).requestIdleCallback(persist, { timeout: 500 });
     } else {
-      (window as any).setTimeout(persist, 200);
+      setTimeout(persist, 200);
     }
   }, []);
 

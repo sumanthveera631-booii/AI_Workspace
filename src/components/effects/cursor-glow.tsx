@@ -27,9 +27,9 @@ export default function CursorGlow() {
       mouseY.set(e.clientY - 200);
     };
 
-    window.addEventListener("mousemove", move);
+    addEventListener("mousemove", move);
 
-    return () => window.removeEventListener("mousemove", move);
+    return () => removeEventListener("mousemove", move);
   }, [lowEnd, mouseX, mouseY]);
 
   if (lowEnd) {

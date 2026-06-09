@@ -49,7 +49,7 @@ export default function SettingsClient({ user: initialUser }: SettingsClientProp
   });
 
   useEffect(() => {
-    const storedTheme = window.localStorage.getItem("theme") as
+    const storedTheme = localStorage.getItem("theme") as
       | "dark"
       | "light"
       | "system"
@@ -76,7 +76,7 @@ export default function SettingsClient({ user: initialUser }: SettingsClientProp
     };
 
     applyTheme(theme);
-    window.localStorage.setItem("theme", theme);
+    localStorage.setItem("theme", theme);
   }, [theme]);
 
   const handleSaveProfile = async () => {
