@@ -22,6 +22,9 @@ export default function LiveCursors() {
   const [myId] = useState(() => "user-" + Math.random().toString(36).substring(2, 7));
 
   useEffect(() => {
+    // 1. Added safety check so BroadcastChannel doesn't crash Server Pre-rendering
+    if (typeof window === "undefined") return;
+
     const channel = new BroadcastChannel("nexus-live-cursors");
 
     const handleMouseMove = (e: MouseEvent) => {
@@ -44,11 +47,13 @@ export default function LiveCursors() {
       }));
     };
 
-    addEventListener(\"mousemove\", handleMouseMove);
-    channel.addEventListener(\"message\", handleMessage);
+    // ✨ FIXED: Removed accidental backslashes around strings here
+    window.addEventListener("mousemove", handleMouseMove);
+    channel.addEventListener("message", handleMessage);
 
     return () => {
-      removeEventListener(\"mousemove\", handleMouseMove);
+      // ✨ FIXED: Removed accidental backslashes around strings here
+      window.removeEventListener("mousemove", handleMouseMove);
       channel.removeEventListener("message", handleMessage);
       channel.close();
     };
