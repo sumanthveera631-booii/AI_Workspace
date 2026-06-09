@@ -74,7 +74,7 @@ export default function AIChat() {
     if ("requestIdleCallback" in window) {
       (window as any).requestIdleCallback(persist, { timeout: 500 });
     } else {
-      window.setTimeout(persist, 200);
+      (window as any).setTimeout(persist, 200);
     }
   }, []);
 
