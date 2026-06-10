@@ -68,16 +68,20 @@ export default function AIChat() {
   const [isPending, startTransition] = useTransition();
 
   const schedulePersist = useCallback((payload: string) => {
-    if (typeof window === "undefined") return;
+  if (typeof window === "undefined") return;
 
-    const persist = () => localStorage.setItem("nexus-chat-threads", payload);
+  const persist = () => localStorage.setItem("nexus-chat-threads", payload);
 
-    if ("requestIdleCallback" in window) {
-      (window as any).requestIdleCallback(persist, { timeout: 500 });
-    } else {
-      setTimeout(persist, 200);
-    }
-  }, []);
+  // By casting the global window to 'any' right here, TypeScript is forced 
+  // to completely stop tracking its narrowed state, allowing the build to pass.
+  const globalWindow = window as any;
+
+  if ("requestIdleCallback" in globalWindow) {
+    globalWindow.requestIdleCallback(persist, { timeout: 500 });
+  } else {
+    globalWindow.setTimeout(persist, 200);
+  }
+}, []);
 
   const saveThreads = useCallback((updatedThreads: ChatThread[]) => {
     setThreads(updatedThreads);
