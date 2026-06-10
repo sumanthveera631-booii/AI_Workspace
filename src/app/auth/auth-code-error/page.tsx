@@ -1,17 +1,25 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import Link from "next/link";
-import { useSearchParams } from "next/navigation";
 import { AlertCircle, Settings, MessageSquare } from "lucide-react";
 
 export const dynamic = "force-dynamic";
 
 export default function AuthCodeErrorPage() {
-  const searchParams = useSearchParams();
-  const error = searchParams.get("error");
-  const errorCode = searchParams.get("error_code");
-  const errorDescription = searchParams.get("error_description");
+  const [error, setError] = useState<string | null>(null);
+  const [errorCode, setErrorCode] = useState<string | null>(null);
+  const [errorDescription, setErrorDescription] = useState<string | null>(null);
+  const [origin, setOrigin] = useState<string>("");
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    setError(params.get("error"));
+    setErrorCode(params.get("error_code"));
+    setErrorDescription(params.get("error_description"));
+    setOrigin(window.location.origin);
+  }, []);
 
   const getErrorMessage = () => {
     if (errorCode === "provider_disabled" || errorDescription?.includes("not enabled")) {
@@ -83,7 +91,7 @@ export default function AuthCodeErrorPage() {
                 <li>2. Navigate to Authentication → Providers</li>
                 <li>3. Enable Google or GitHub provider</li>
                 <li>4. Add your OAuth credentials (Client ID & Secret)</li>
-                <li>5. Set the Redirect URL to: <code className="bg-black/30 px-2 py-1 rounded">{typeof window !== 'undefined' ? window.location.origin : ''}/auth/callback</code></li>
+                <li>5. Set the Redirect URL to: <code className="bg-black/30 px-2 py-1 rounded">{origin ? `${origin}/auth/callback` : "https://your-domain.com/auth/callback"}</code></li>
               </ol>
             </div>
           )}
