@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { applyCors, attachCorsHeaders } from "@/lib/cors";
 
 const GROQ_API_ENDPOINT = "https://api.groq.com/openai/v1";
 
@@ -17,13 +18,18 @@ function normalizeModel(model: string) {
 }
 
 export async function POST(request: Request) {
+  const preflight = applyCors(request);
+  if (preflight) return preflight;
+
   // Support multiple env names: GROQ_API_KEY, groq_api_key, NEXT_PUBLIC_GROQ_API_KEY
   const apiKey = process.env.GROQ_API_KEY || process.env.groq_api_key || process.env.NEXT_PUBLIC_GROQ_API_KEY;
 
   if (!apiKey) {
-    return NextResponse.json(
-      { error: "Missing GROQ API key. Set GROQ_API_KEY or groq_api_key in your environment." },
-      { status: 500 }
+    return attachCorsHeaders(
+      NextResponse.json(
+        { error: "Missing GROQ API key. Set GROQ_API_KEY or groq_api_key in your environment." },
+        { status: 500 }
+      )
     );
   }
 
@@ -58,9 +64,11 @@ export async function POST(request: Request) {
     const responseText = await response.text();
 
     if (!response.ok) {
-      return NextResponse.json(
-        { error: "Groq API request failed.", status: response.status, details: responseText },
-        { status: response.status }
+      return attachCorsHeaders(
+        NextResponse.json(
+          { error: "Groq API request failed.", status: response.status, details: responseText },
+          { status: response.status }
+        )
       );
     }
 
@@ -79,14 +87,16 @@ export async function POST(request: Request) {
       responseText ||
       "Groq AI returned no usable text.";
 
-    return NextResponse.json({ text: content });
+    return attachCorsHeaders(NextResponse.json({ text: content }));
   } catch (error) {
-    return NextResponse.json(
-      {
-        error: "AI request failed.",
-        details: error instanceof Error ? error.message : "Unknown error",
-      },
-      { status: 500 }
+    return attachCorsHeaders(
+      NextResponse.json(
+        {
+          error: "AI request failed.",
+          details: error instanceof Error ? error.message : "Unknown error",
+        },
+        { status: 500 }
+      )
     );
   }
 }

@@ -1,10 +1,14 @@
 import { NextResponse } from "next/server";
+import { applyCors, attachCorsHeaders } from "@/lib/cors";
 
 import bcrypt from "bcrypt";
 
 import { db } from "@/lib/db";
 
 export async function POST(req: Request) {
+  const preflight = applyCors(req);
+  if (preflight) return preflight;
+
   try {
     const body = await req.json();
 
@@ -15,13 +19,15 @@ export async function POST(req: Request) {
     } = body;
 
     if (!email || !password || !name) {
-      return NextResponse.json(
-        {
-          error: "Missing fields",
-        },
-        {
-          status: 400,
-        }
+      return attachCorsHeaders(
+        NextResponse.json(
+          {
+            error: "Missing fields",
+          },
+          {
+            status: 400,
+          }
+        )
       );
     }
 
@@ -32,13 +38,15 @@ export async function POST(req: Request) {
     });
 
     if (existingUser) {
-      return NextResponse.json(
-        {
-          error: "User already exists",
-        },
-        {
-          status: 400,
-        }
+      return attachCorsHeaders(
+        NextResponse.json(
+          {
+            error: "User already exists",
+          },
+          {
+            status: 400,
+          }
+        )
       );
     }
 
@@ -55,17 +63,19 @@ export async function POST(req: Request) {
       },
     });
 
-    return NextResponse.json(user);
+    return attachCorsHeaders(NextResponse.json(user));
   } catch (error) {
     console.log(error);
 
-    return NextResponse.json(
-      {
-        error: "Something went wrong",
-      },
-      {
-        status: 500,
-      }
+    return attachCorsHeaders(
+      NextResponse.json(
+        {
+          error: "Something went wrong",
+        },
+        {
+          status: 500,
+        }
+      )
     );
   }
 }
