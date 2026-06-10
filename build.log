@@ -1,0 +1,57 @@
+﻿
+> ai-workspace@0.1.0 build
+> next build
+
+Γû▓ Next.js 16.2.6 (Turbopack)
+- Environments: .env
+- Experiments (use with caution):
+  ┬╖ optimizePackageImports
+
+  Creating an optimized production build ...
+Γ£ô Compiled successfully in 20.7s
+  Running TypeScript ...
+  Finished TypeScript in 18.3s ...
+  Collecting page data using 7 workers ...
+  Generating static pages using 7 workers (0/28) ...
+  Generating static pages using 7 workers (7/28) 
+  Generating static pages using 7 workers (14/28) 
+  Generating static pages using 7 workers (21/28) 
+Γ£ô Generating static pages using 7 workers (28/28) in 2.1s
+  Finalizing page optimization ...
+
+Route (app)
+Γöî Γùï /
+Γö£ Γùï /_not-found
+Γö£ Γùï /about
+Γö£ Γùï /ai
+Γö£ ╞Æ /api/ai
+Γö£ ╞Æ /api/auth/[...nextauth]
+Γö£ ╞Æ /api/register
+Γö£ ╞Æ /api/test-db
+Γö£ Γùï /auth/auth-code-error
+Γö£ ╞Æ /auth/callback
+Γö£ Γùï /auth/reset-password
+Γö£ Γùï /collaboration
+Γö£ Γùï /command
+Γö£ ╞Æ /dashboard
+Γö£ ╞Æ /documents
+Γö£ Γùï /editor
+Γö£ Γùï /features
+Γö£ Γùï /forgot-password
+Γö£ Γùï /invite
+Γö£ Γùï /login
+Γö£ Γùï /pricing
+Γö£ ╞Æ /profile
+Γö£ ╞Æ /settings
+Γö£ Γùï /showcase
+Γö£ Γùï /signup
+Γö£ Γùï /verify
+Γö£ ╞Æ /workspaces
+Γöö ╞Æ /workspaces/[id]
+
+
+╞Æ Proxy (Middleware)
+
+Γùï  (Static)   prerendered as static content
+╞Æ  (Dynamic)  server-rendered on demand
+
