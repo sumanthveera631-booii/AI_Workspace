@@ -6,7 +6,7 @@ import Link from "next/link";
 export default function HeroContent() {
   return (
     <div className="relative z-20 flex min-h-[calc(100vh-5.5rem)] flex-col justify-between px-6 py-16 text-center">
-      <div className="space-y-12">
+      <div className="space-y-8">
         <motion.h1
           initial={{ opacity: 0, y: 40 }}
           animate={{ opacity: 1, y: 0 }}
@@ -14,7 +14,7 @@ export default function HeroContent() {
             delay: 0.2,
             duration: 1,
           }}
-          className="transform-gpu will-change-transform max-w-6xl text-center text-7xl font-bold leading-[1.1] tracking-tight sm:text-8xl md:text-9xl lg:text-[120px]"
+          className="transform-gpu will-change-transform max-w-6xl text-center font-bold leading-[1.1] tracking-[-0.03em] text-[clamp(3.75rem,5vw+1.5rem,7.5rem)]"
         >
           The AI Workspace
           <br />
@@ -28,14 +28,14 @@ export default function HeroContent() {
             delay: 0.4,
             duration: 1,
           }}
-          className="mx-auto max-w-3xl text-2xl leading-10 text-white/70 font-medium"
+          className="mx-auto max-w-3xl text-[1.125rem] leading-[1.6] text-white/70 font-normal tracking-[0.01em]"
         >
           Combine docs, AI agents, workflows, chats, research, and knowledge into
           one cinematic collaborative workspace.
         </motion.p>
       </div>
 
-      <div className="flex flex-col items-center gap-10">
+      <div className="flex flex-col items-center gap-12">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -46,7 +46,7 @@ export default function HeroContent() {
         >
           <Link
             href="/login"
-            className="rounded-3xl bg-white px-12 py-6 text-xl font-bold text-black transition hover:scale-105 shadow-2xl"
+            className="rounded-3xl bg-white px-10 py-4 text-[15px] font-semibold tracking-[0.015em] text-black transition hover:scale-105 shadow-2xl"
           >
             Start for Free
           </Link>
